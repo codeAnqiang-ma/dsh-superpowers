@@ -1,0 +1,16 @@
+# The dsh-plugin-superpowers bundle patch: one host-plane row.
+#
+# The row registers a `ctx.skills` provider for the bundled Superpowers skills
+# and a `superpowers:bootstrap` prompt section. Both land in the global layer,
+# which every agent's scope chain merges, so the plugin works on the Web surface
+# (where the agent plane sits behind presets) without touching any preset.
+#
+# Turn a half off in the profile's own cordis.patch.yml, for example:
+#
+#   - id: superpowers
+#     config:
+#       bootstrap: false
+#
+- insert:
+    - id: superpowers
+      name: dsh-plugin-superpowers

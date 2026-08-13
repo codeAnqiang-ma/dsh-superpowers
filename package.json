@@ -1,0 +1,45 @@
+{
+  "name": "dsh-plugin-superpowers",
+  "version": "0.1.0",
+  "description": "Superpowers (obra/superpowers) for DeepSeek Harness: the software-development methodology skills plus their session bootstrap, as a dsh plugin",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "skills/**",
+    "README.md",
+    "README.zh.md",
+    "LICENSE",
+    "LICENSE.superpowers"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "superpowers",
+    "skills",
+    "tdd",
+    "agent"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "superpowers": {
+    "upstreamVersion": "6.3.0",
+    "upstreamCommit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+    "upstreamRepository": "https://github.com/obra/superpowers"
+  }
+}
