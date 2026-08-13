@@ -7,10 +7,10 @@ Superpowers 是一套给编码 Agent 用的软件开发方法论：不上来就�
 ## 安装
 
 ```sh
-dsh plugin --profile web add dsh-plugin-superpowers
+dsh plugin --profile <名字> add dsh-plugin-superpowers
 ```
 
-装完重启 `dsh web`。其他形态把 `--profile` 换成对应的 profile 名（如 `headless`）。
+把 `<名字>` 换成 `web`、`headless` 或自定义 profile 名，装完后重启对应形态。
 
 ## 它做了什么
 
@@ -25,8 +25,10 @@ dsh plugin --profile web add dsh-plugin-superpowers
 想直接看配置是否挂上：
 
 ```sh
-dsh --profile <名字> --dump-config | grep -A2 'id: superpowers'
+dsh --profile <名字> --dump-config
 ```
+
+输出中应能看到 `id: superpowers`，下一行是 `name: dsh-plugin-superpowers`。
 
 ## 配置
 
@@ -49,7 +51,7 @@ dsh --profile <名字> --dump-config | grep -A2 'id: superpowers'
 
 ## 开销
 
-引导段落给每次请求的系统提示词增加约 1.5k token。它是静态的，落在缓存前缀里，不会像消息那样每轮重发。不想要这份固定开销就设 `bootstrap: false`。
+引导段落给每次请求的系统提示词增加约 1.1k token（4,465 字符）。它是静态的，落在缓存前缀里，不会像消息那样每轮重发。不想要这份固定开销就设 `bootstrap: false`。
 
 ## 环境要求
 
@@ -58,6 +60,8 @@ DeepSeek Harness `0.1.0-rc.6` 及以上，Node 22.19+/24+。插件**零运行时
 ## 上游
 
 `skills/` 原样取自 [obra/superpowers](https://github.com/obra/superpowers) v6.3.0（`b36e082`），未做修改；`package.json` 的 `superpowers` 字段记录了确切版本与 commit。技能内容与方法论归上游所有——技能行为问题请提到上游，打包问题提到本仓库。
+
+`brainstorming` 的可选视觉组件会从上游网站加载带 Superpowers 版本号的 logo（不包含项目或提示词内容）；设置 `SUPERPOWERS_DISABLE_TELEMETRY` 可关闭。
 
 ## 许可
 

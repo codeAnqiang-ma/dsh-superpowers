@@ -54,23 +54,122 @@ function splitFrontmatter(content) {
   return { frontmatter: match[1], body: match[2].trim() }
 }
 
+/** Count the leading ASCII spaces on one YAML line. */
+function leadingSpaces(line) {
+  return line.length - line.trimStart().length
+}
+
 /**
- * Read the scalar frontmatter keys a Superpowers skill declares. The upstream
- * files use one `key: value` line per key with optional quotes; anything more
- * elaborate is left to the harness's own filesystem provider.
+ * Parse a YAML block-scalar header from a value such as `>-`, `|+`, or `>2-`.
+ * @returns the scalar controls, or undefined for an ordinary scalar.
+ */
+function parseBlockHeader(value) {
+  const match = value.match(/^([|>])(?:(?:([1-9])([+-]?))|(?:([+-])([1-9]?)))?(?:\s+#.*)?$/)
+  if (match === null) return undefined
+  return {
+    style: match[1],
+    indentation: Number(match[2] || match[5] || 0),
+    chomping: match[3] || match[4] || '',
+  }
+}
+
+/** Fold non-empty YAML lines while preserving paragraph and indented breaks. */
+function foldBlockLines(lines, moreIndented) {
+  let value = ''
+  for (let index = 0; index < lines.length;) {
+    if (lines[index] === '') {
+      let end = index
+      while (end < lines.length && lines[end] === '') end += 1
+      value += '\n'.repeat(end - index)
+      index = end
+      continue
+    }
+
+    value += lines[index]
+    const next = index + 1
+    if (next < lines.length && lines[next] !== '') {
+      value += moreIndented[index] || moreIndented[next] ? '\n' : ' '
+    }
+    index = next
+  }
+  return value
+}
+
+/**
+ * Read one top-level YAML block scalar and return the next unconsumed line.
+ * This deliberately implements only scalar semantics needed by skill metadata,
+ * while covering literal/folded styles, indentation indicators, and chomping.
+ */
+function readBlockScalar(lines, start, header) {
+  let end = start
+  while (end < lines.length && (lines[end].trim() === '' || lines[end].startsWith(' '))) {
+    end += 1
+  }
+
+  const rawLines = lines.slice(start, end)
+  const firstContent = rawLines.find(line => line.trim() !== '')
+  const indentation = header.indentation || (firstContent === undefined ? 1 : leadingSpaces(firstContent))
+
+  for (const line of rawLines) {
+    if (line.trim() !== '' && leadingSpaces(line) < indentation) {
+      throw new Error('invalid block-scalar indentation')
+    }
+  }
+
+  const contentLines = rawLines.map(line => line.trim() === '' ? '' : line.slice(indentation))
+  const moreIndented = rawLines.map(line => line.trim() !== '' && leadingSpaces(line) > indentation)
+  const hasContent = contentLines.some(line => line !== '')
+  let value = header.style === '|'
+    ? contentLines.join('\n')
+    : foldBlockLines(contentLines, moreIndented)
+
+  if (rawLines.length > 0) value += '\n'
+  if (header.chomping === '-') {
+    value = value.replace(/\n+$/, '')
+  } else if (header.chomping !== '+') {
+    value = hasContent ? `${value.replace(/\n+$/, '')}\n` : ''
+  }
+
+  return { value, nextLine: end }
+}
+
+/** Parse one quoted or plain YAML scalar. */
+function parseInlineScalar(value) {
+  if (value.startsWith('"')) {
+    if (!value.endsWith('"')) throw new Error('unterminated double-quoted scalar')
+    return JSON.parse(value)
+  }
+  if (value.startsWith("'")) {
+    if (!value.endsWith("'")) throw new Error('unterminated single-quoted scalar')
+    return value.slice(1, -1).replace(/''/g, "'")
+  }
+  return value.replace(/\s+#.*$/, '').trim()
+}
+
+/**
+ * Read the scalar frontmatter keys a Superpowers skill declares. Besides the
+ * current one-line metadata, support YAML literal and folded block scalars so
+ * a future vendored release cannot silently turn `description: >-` into `>-`.
  * @param frontmatter - the frontmatter text.
  * @returns the parsed string values by key.
  */
 function parseFrontmatter(frontmatter) {
   const fields = {}
-  for (const line of frontmatter.split(/\r?\n/)) {
-    const match = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/)
+  const lines = frontmatter.split(/\r?\n/)
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = lines[index].match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/)
     if (match === null) continue
-    let value = match[2].trim()
-    if (value.length >= 2 && ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))) {
-      value = value.slice(1, -1)
+
+    const rawValue = match[2].trim()
+    const block = parseBlockHeader(rawValue)
+    if (block !== undefined) {
+      const parsed = readBlockScalar(lines, index + 1, block)
+      fields[match[1]] = parsed.value
+      index = parsed.nextLine - 1
+      continue
     }
-    if (value !== '') fields[match[1]] = value
+
+    if (rawValue !== '') fields[match[1]] = parseInlineScalar(rawValue)
   }
   return fields
 }
@@ -81,13 +180,17 @@ function parseFrontmatter(frontmatter) {
  */
 function loadBundledSkills() {
   const skills = []
+  const issues = []
   let entries
   try {
     entries = readdirSync(skillsDir, { withFileTypes: true })
-  } catch {
-    return skills
+  } catch (error) {
+    issues.push(`cannot read skills directory ${skillsDir}: ${error instanceof Error ? error.message : String(error)}`)
+    return { skills, issues }
   }
 
+  const seen = new Map()
+  entries.sort((left, right) => left.name.localeCompare(right.name))
   for (const entry of entries) {
     if (!entry.isDirectory()) continue
     const skillDir = join(skillsDir, entry.name)
@@ -95,15 +198,40 @@ function loadBundledSkills() {
     let raw
     try {
       raw = readFileSync(skillPath, 'utf8')
-    } catch {
+    } catch (error) {
+      issues.push(`cannot read ${skillPath}: ${error instanceof Error ? error.message : String(error)}`)
       continue
     }
 
     const { frontmatter, body } = splitFrontmatter(raw)
-    const fields = parseFrontmatter(frontmatter)
-    const skillName = fields.name ?? entry.name
+    if (frontmatter === '') {
+      issues.push(`${skillPath} has no valid frontmatter`)
+      continue
+    }
+
+    let fields
+    try {
+      fields = parseFrontmatter(frontmatter)
+    } catch (error) {
+      issues.push(`cannot parse ${skillPath}: ${error instanceof Error ? error.message : String(error)}`)
+      continue
+    }
+
+    const skillName = fields.name
     const description = fields.description
-    if (description === undefined) continue
+    if (skillName === undefined || description === undefined || description === '') {
+      issues.push(`${skillPath} requires non-empty name and description fields`)
+      continue
+    }
+    if (body === '') {
+      issues.push(`${skillPath} has an empty instruction body`)
+      continue
+    }
+    if (seen.has(skillName)) {
+      issues.push(`${skillPath} duplicates skill name "${skillName}" from ${seen.get(skillName)}`)
+      continue
+    }
+    seen.set(skillName, skillPath)
 
     skills.push({
       name: skillName,
@@ -115,7 +243,7 @@ function loadBundledSkills() {
       resourceBase: { kind: 'directory', path: skillDir },
     })
   }
-  return skills
+  return { skills, issues }
 }
 
 /**
@@ -140,7 +268,7 @@ Superpowers skills are written for several coding agents. In DeepSeek Harness, u
 - Track tasks → \`todo_write\`
 - Ask the human a question → \`ask_user_question\`
 - Search the web → \`web_search\`
-- Dispatch a subagent → \`subagent\` for a fresh child, \`subagent_fork\` to continue from this session; steer children with \`send_message\`, \`interrupt\`, and \`list_agents\`
+- Dispatch a subagent → \`subagent\` for a fresh child, \`subagent_fork\` to continue from this session; steer children with \`send_message\`, \`interrupt_agent\`, and \`list_agents\`
 - Present a plan for approval → \`exit_plan_mode\`, while the session is in plan mode
 
 Read Claude Code's \`Task\` as \`subagent\`, \`TodoWrite\` as \`todo_write\`, and \`Bash\`/\`Read\`/\`Write\`/\`Edit\`/\`Glob\`/\`Grep\` as their lowercase equivalents above. DeepSeek Harness exposes no hook or slash-command API to skills, so skip instructions that install hooks or register commands and do the work with these tools instead.`
@@ -170,19 +298,17 @@ ${bootstrapBody}${mapping}
  */
 export function apply(ctx, config) {
   const options = { ...DEFAULTS, ...(config ?? {}) }
-  const bundled = loadBundledSkills()
+  if (!options.skills && !options.bootstrap) return
+
+  const { skills: bundled, issues } = loadBundledSkills()
+  for (const issue of issues) ctx.logger.warn(`superpowers: ${issue}`)
 
   if (bundled.length === 0) {
-    ctx.logger.warn(`superpowers: no skills found under ${skillsDir}`)
+    ctx.logger.warn(`superpowers: no valid skills found under ${skillsDir}`)
   }
 
   if (options.skills) {
-    const skills = ctx.get('skills')
-    if (skills === undefined) {
-      ctx.logger.warn('superpowers: no skill registry is mounted; the bundled skills are not registered')
-    } else {
-      for (const skill of bundled) skills.register(skill)
-    }
+    for (const skill of bundled) ctx.skills.register(skill)
   }
 
   if (!options.bootstrap) return

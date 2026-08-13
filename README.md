@@ -9,10 +9,10 @@ Superpowers is a software-development methodology for coding agents: instead of 
 ## Install
 
 ```sh
-dsh plugin --profile web add dsh-plugin-superpowers
+dsh plugin --profile <name> add dsh-plugin-superpowers
 ```
 
-Restart `dsh web` afterwards. Use `--profile headless` (or any other profile) for the other surfaces.
+Use `web`, `headless`, or any custom profile name, then restart that surface.
 
 ## What it does
 
@@ -27,8 +27,10 @@ Start a session and ask for a feature. A working install makes the agent explore
 To see the bootstrap in the request itself:
 
 ```sh
-dsh --profile <name> --dump-config | grep -A2 'id: superpowers'
+dsh --profile <name> --dump-config
 ```
+
+The output should contain `id: superpowers` followed by `name: dsh-plugin-superpowers`.
 
 ## Configuration
 
@@ -51,7 +53,7 @@ Turning `bootstrap` off leaves the skills discoverable but no longer self-trigge
 
 ## Cost
 
-The bootstrap section adds roughly 1.5k tokens to the system prompt of every request. It is static, so it stays inside the cached prefix; it is not re-sent per turn as a message. If you want the skills without that fixed cost, set `bootstrap: false`.
+The bootstrap section adds roughly 1.1k tokens (4,465 characters) to the system prompt of every request. It is static, so it stays inside the cached prefix; it is not re-sent per turn as a message. If you want the skills without that fixed cost, set `bootstrap: false`.
 
 ## Requirements
 
@@ -60,6 +62,8 @@ DeepSeek Harness `0.1.0-rc.6` or newer, Node 22.19+/24+. The plugin has no runti
 ## Upstream
 
 Skills are vendored from [obra/superpowers](https://github.com/obra/superpowers) v6.3.0 (`b36e082`), unmodified. `package.json` records the exact upstream version and commit under the `superpowers` key. Skill content and methodology are upstream's work; report skill-behavior issues there, and packaging issues here.
+
+The optional visual companion in `brainstorming` loads an upstream-hosted logo with the Superpowers version (no project or prompt content); set `SUPERPOWERS_DISABLE_TELEMETRY` to disable it.
 
 ## License
 
