@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 [![license](https://img.shields.io/npm/l/dsh-superpowers?style=flat-square)](LICENSE)
 [![Node.js](https://img.shields.io/node/v/dsh-superpowers?style=flat-square&logo=node.js)](https://nodejs.org/)
 
-**Bring [obra/superpowers](https://github.com/obra/superpowers) to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): 14 software-development skills for brainstorming, planning, TDD, debugging, and code review, kept active throughout the session by a native bootstrap.**
+[dsh-superpowers](https://github.com/codeAnqiang-ma/dsh-superpowers) adds [obra/superpowers](https://github.com/obra/superpowers) support to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It registers 14 skills for brainstorming, planning, TDD, debugging, and code review, and keeps the `using-superpowers` bootstrap active throughout the session.
 
 ## Contents
 
@@ -39,9 +39,9 @@ After either command, stop and restart `dsh web`. Replace `web` with `headless` 
 
 ## What it does
 
-- **Registers all 14 Superpowers skills.** The bundled skills are registered on `ctx.skills`, appear in the skill catalog, and load through the native `skill` tool. Nothing is copied into `~/.dsh/skills`.
-- **Installs a compaction-safe bootstrap.** The `using-superpowers` bootstrap is registered as the `superpowers:bootstrap` prompt section at order 50. It is present on the first request and survives context compaction because it is part of the system prompt rather than a one-off session message.
-- **Maps Superpowers tools to DeepSeek Harness.** The bootstrap maps Claude Code-style names such as `Task`, `TodoWrite`, and `Bash`/`Read`/`Write`/`Edit` to their DeepSeek Harness equivalents and explains that hooks and slash commands are not available.
+- Registers all 14 Superpowers skills on `ctx.skills`. They appear in the skill catalog and load through the native `skill` tool. Nothing is copied into `~/.dsh/skills`.
+- Adds the `using-superpowers` bootstrap as the `superpowers:bootstrap` prompt section at order 50. It is present on the first request and survives context compaction because it is part of the system prompt, not a one-off session message.
+- Maps Claude Code-style tool names such as `Task`, `TodoWrite`, and `Bash`/`Read`/`Write`/`Edit` to their DeepSeek Harness equivalents. The mapping also notes that hooks and slash commands are not available.
 
 ## Verification
 
@@ -53,7 +53,7 @@ dsh --profile web --dump-config
 
 The output should contain `id: superpowers` followed by `name: dsh-superpowers`.
 
-Then start a new session and ask for a feature. A working installation makes the agent explore first and return with questions or a design instead of immediately writing code; `skill` should also appear in its tool calls.
+Then start a new session and ask for a feature. The agent should explore first and respond with questions or a design instead of writing code immediately. Its tool calls should include `skill`.
 
 ## Configuration
 
@@ -76,7 +76,7 @@ Setting `bootstrap: false` keeps the skills discoverable but stops them from sel
 
 ## Overhead
 
-The bootstrap adds roughly 1.1k tokens (4,465 characters) to the system prompt of each request. The section is static and stays within the cached prefix, rather than being appended as a new chat message on every turn. To keep the skills without this fixed prompt overhead, set `bootstrap: false`.
+The bootstrap adds roughly 1.1k tokens (4,465 characters) to the system prompt of each request. The section is static and stays within the cached prefix. It is not appended as a new chat message on every turn. Set `bootstrap: false` to keep the skills without the fixed prompt overhead.
 
 ## Requirements
 

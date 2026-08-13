@@ -9,7 +9,7 @@
 [![许可](https://img.shields.io/npm/l/dsh-superpowers?style=flat-square)](LICENSE)
 [![Node.js](https://img.shields.io/node/v/dsh-superpowers?style=flat-square&logo=node.js)](https://nodejs.org/)
 
-**把 [obra/superpowers](https://github.com/obra/superpowers) 带到 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：14 个软件开发技能覆盖需求澄清、任务规划、TDD、调试与代码审查，并通过原生 bootstrap 在整个会话中持续生效。**
+[dsh-superpowers](https://github.com/codeAnqiang-ma/dsh-superpowers) 为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 提供 [obra/superpowers](https://github.com/obra/superpowers) 适配。它注册 14 个覆盖需求澄清、任务规划、TDD、调试与代码审查的技能，并让 `using-superpowers` bootstrap 在整个会话中保持生效。
 
 ## 目录
 
@@ -39,9 +39,9 @@ dsh plugin --profile web add "github:codeAnqiang-ma/dsh-superpowers#master"
 
 ## 它做了什么
 
-- **注册全部 14 个 Superpowers 技能。** 内置技能会注册到 `ctx.skills`、出现在技能目录中，并通过原生 `skill` 工具加载；不会往 `~/.dsh/skills` 复制任何文件。
-- **安装可跨上下文压缩存活的 bootstrap。** `using-superpowers` bootstrap 会以 `superpowers:bootstrap` 提示词段落注册，order 为 50。它属于系统提示词而非一次性会话消息，因此第一条请求就会生效，并在上下文压缩后继续存在。
-- **把 Superpowers 工具映射到 DeepSeek Harness。** bootstrap 会把 `Task`、`TodoWrite`、`Bash`/`Read`/`Write`/`Edit` 等 Claude Code 风格名称映射到 DeepSeek Harness 对应工具，并说明当前环境不提供 hooks 与斜杠命令。
+- 在 `ctx.skills` 注册全部 14 个 Superpowers 技能。它们会出现在技能目录中，并通过原生 `skill` 工具加载；不会往 `~/.dsh/skills` 复制任何文件。
+- 把 `using-superpowers` bootstrap 注册为 `superpowers:bootstrap` 提示词段落，order 为 50。它在第一条请求中生效，并能在上下文压缩后继续存在，因为它属于系统提示词，不是一次性会话消息。
+- 将 `Task`、`TodoWrite`、`Bash`/`Read`/`Write`/`Edit` 等 Claude Code 风格工具名映射到 DeepSeek Harness 对应工具。映射中也会说明当前环境不提供 hooks 与斜杠命令。
 
 ## 验证
 
@@ -53,7 +53,7 @@ dsh --profile web --dump-config
 
 输出中应包含 `id: superpowers`，其后是 `name: dsh-superpowers`。
 
-然后新建会话并提出一个功能需求。安装正常时，Agent 会先探查，再带着问题或设计回来，而不是立即开始写代码；工具调用中也应出现 `skill`。
+然后新建会话并提出一个功能需求。Agent 应先探查，再给出问题或设计，不会立即开始写代码。工具调用中应出现 `skill`。
 
 ## 配置
 
@@ -76,7 +76,7 @@ dsh --profile web --dump-config
 
 ## 开销
 
-bootstrap 会给每次请求的系统提示词增加约 1.1k token（4,465 字符）。这段内容是静态的，位于缓存前缀内，不会在每一轮作为新的聊天消息追加。不想承担这份固定提示词开销时，可设置 `bootstrap: false`，继续保留技能。
+bootstrap 会给每次请求的系统提示词增加约 1.1k token（4,465 字符）。这段内容是静态的，位于缓存前缀内，不会在每一轮作为新的聊天消息追加。设置 `bootstrap: false` 可以保留技能，同时去掉这份固定提示词开销。
 
 ## 环境要求
 
