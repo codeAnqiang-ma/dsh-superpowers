@@ -1,5 +1,7 @@
 # dsh-plugin-superpowers
 
+![dsh-plugin-superpowers](assets/banner.png)
+
 把 [Superpowers](https://github.com/obra/superpowers) 带到 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)。
 
 Superpowers 是一套给编码 Agent 用的软件开发方法论：不上来就写代码，而是先问清你到底要做什么，把它变成经你确认的设计，再拆成小到 2-5 分钟的任务清单，然后用红/绿 TDD 逐个实现、任务之间做代码审查。上游已适配 Claude Code、Codex、Cursor、Gemini CLI、Kimi Code、OpenCode、Pi、Hermes 等，本插件是 DeepSeek Harness 版。

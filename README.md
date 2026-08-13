@@ -1,5 +1,7 @@
 # dsh-plugin-superpowers
 
+![dsh-plugin-superpowers](assets/banner.png)
+
 [Superpowers](https://github.com/obra/superpowers) for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
 
 Superpowers is a software-development methodology for coding agents: instead of jumping straight into code, the agent asks what you are actually trying to build, turns it into a reviewed design, writes a plan of bite-sized tasks, and implements them under red/green TDD with code review between tasks. Upstream ships adapters for Claude Code, Codex, Cursor, Gemini CLI, Kimi Code, OpenCode, Pi, Hermes and more. This plugin is the DeepSeek Harness one.

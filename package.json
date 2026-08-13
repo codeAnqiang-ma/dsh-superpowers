@@ -15,6 +15,7 @@
     "index.js",
     "cordis.patch.yml",
     "skills/**",
+    "assets/**",
     "README.md",
     "README.zh.md",
     "LICENSE",
