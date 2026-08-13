@@ -11,7 +11,7 @@
  * nested inside the dsh installation — so both registries are reached through
  * `ctx` alone.
  *
- * @module dsh-plugin-superpowers
+ * @module dsh-superpowers
  */
 
 import { readdirSync, readFileSync } from 'node:fs'

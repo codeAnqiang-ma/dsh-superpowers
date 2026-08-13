@@ -1,5 +1,5 @@
 {
-  "name": "dsh-plugin-superpowers",
+  "name": "dsh-superpowers",
   "version": "0.1.0",
   "description": "Superpowers (obra/superpowers) for DeepSeek Harness: the software-development methodology skills plus their session bootstrap, as a dsh plugin",
   "type": "module",
@@ -23,11 +23,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codeAnqiang-ma/dsh-plugin-superpowers.git"
+    "url": "git+https://github.com/codeAnqiang-ma/dsh-superpowers.git"
   },
-  "homepage": "https://github.com/codeAnqiang-ma/dsh-plugin-superpowers#readme",
+  "homepage": "https://github.com/codeAnqiang-ma/dsh-superpowers#readme",
   "bugs": {
-    "url": "https://github.com/codeAnqiang-ma/dsh-plugin-superpowers/issues"
+    "url": "https://github.com/codeAnqiang-ma/dsh-superpowers/issues"
   },
   "author": {
     "name": "codeAnqiang-ma",

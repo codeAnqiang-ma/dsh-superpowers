@@ -1,6 +1,6 @@
-# dsh-plugin-superpowers
+# dsh-superpowers
 
-![dsh-plugin-superpowers](assets/banner.png)
+![dsh-superpowers](assets/banner.png)
 
 把 [Superpowers](https://github.com/obra/superpowers) 带到 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)。
 
@@ -9,10 +9,16 @@ Superpowers 是一套给编码 Agent 用的软件开发方法论：不上来就�
 ## 安装
 
 ```sh
-dsh plugin --profile <名字> add dsh-plugin-superpowers
+dsh plugin --profile web add dsh-superpowers
 ```
 
-把 `<名字>` 换成 `web`、`headless` 或自定义 profile 名，装完后重启对应形态。
+也可以从 GitHub 默认分支直接安装：
+
+```sh
+dsh plugin --profile web add "github:codeAnqiang-ma/dsh-superpowers#master"
+```
+
+按需把 `web` 换成 `headless` 或自定义 profile 名，装完后重启对应形态。
 
 ## 它做了什么
 
@@ -30,7 +36,7 @@ dsh plugin --profile <名字> add dsh-plugin-superpowers
 dsh --profile <名字> --dump-config
 ```
 
-输出中应能看到 `id: superpowers`，下一行是 `name: dsh-plugin-superpowers`。
+输出中应能看到 `id: superpowers`，下一行是 `name: dsh-superpowers`。
 
 ## 配置
 

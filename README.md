@@ -1,6 +1,6 @@
-# dsh-plugin-superpowers
+# dsh-superpowers
 
-![dsh-plugin-superpowers](assets/banner.png)
+![dsh-superpowers](assets/banner.png)
 
 [Superpowers](https://github.com/obra/superpowers) for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
 
@@ -11,10 +11,16 @@ Superpowers is a software-development methodology for coding agents: instead of 
 ## Install
 
 ```sh
-dsh plugin --profile <name> add dsh-plugin-superpowers
+dsh plugin --profile web add dsh-superpowers
 ```
 
-Use `web`, `headless`, or any custom profile name, then restart that surface.
+Or install directly from the default GitHub branch:
+
+```sh
+dsh plugin --profile web add "github:codeAnqiang-ma/dsh-superpowers#master"
+```
+
+Replace `web` with `headless` or any custom profile name as needed, then restart that surface.
 
 ## What it does
 
@@ -32,7 +38,7 @@ To see the bootstrap in the request itself:
 dsh --profile <name> --dump-config
 ```
 
-The output should contain `id: superpowers` followed by `name: dsh-plugin-superpowers`.
+The output should contain `id: superpowers` followed by `name: dsh-superpowers`.
 
 ## Configuration
 

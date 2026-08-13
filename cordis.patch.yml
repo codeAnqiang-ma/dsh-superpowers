@@ -1,4 +1,4 @@
-# The dsh-plugin-superpowers bundle patch: one host-plane row.
+# The dsh-superpowers bundle patch: one host-plane row.
 #
 # The row registers a `ctx.skills` provider for the bundled Superpowers skills
 # and a `superpowers:bootstrap` prompt section. Both land in the global layer,
@@ -13,4 +13,4 @@
 #
 - insert:
     - id: superpowers
-      name: dsh-plugin-superpowers
+      name: dsh-superpowers
